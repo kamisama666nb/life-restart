@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>AI 人生重开手帐</title>
+<link href="https://fonts.loli.net/css2?family=Noto+Sans+SC:wght@300;400;600;700&family=Noto+Serif+SC:wght@600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f6f3ed;--card:#fff;--card2:#faf8f4;
+  --t1:#1a1510;--t2:#3d3529;--t3:#7a6f62;--t4:#b0a898;
+  --bd:#e4ded4;--bdl:#ede8e0;
+  --sh:0 1px 4px rgba(0,0,0,.06),0 2px 8px rgba(0,0,0,.04);
+  --acc:#4a6fa5;--r:10px;
+}
+html,body{height:100%}
+body{font-family:'Noto Sans SC',sans-serif;background:var(--bg);color:var(--t2);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;opacity:.03;pointer-events:none;z-index:0;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E")}
+.app{max-width:480px;margin:0 auto;min-height:100dvh;display:flex;flex-direction:column;position:relative;z-index:1}
+
+/* OVERLAY */
+.overlay{position:fixed;inset:0;z-index:300;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(20,15,8,.5);backdrop-filter:blur(6px)}
+.overlay.hide{display:none!important}
+.modal{width:100%;max-width:400px;background:var(--card);border-radius:14px;border:1px solid var(--bd);box-shadow:0 8px 40px rgba(0,0,0,.2);overflow:hidden}
+.modal-bar{height:3px;background:linear-gradient(90deg,#4a6fa5,#c0614a,#2d7d6e,#7b4fa5)}
+.modal-body{padding:24px 22px 22px}
+.modal-title{font-family:'Noto Serif SC',serif;font-size:17px;font-weight:700;color:var(--t1);text-align:center;margin-bottom:4px}
+.modal-sub{font-size:12px;color:var(--t4);text-align:center;margin-bottom:16px;line-height:1.7}
+.fl{font-size:11px;color:var(--t3);font-weight:600;letter-spacing:.1em;margin-bottom:5px;margin-top:12px}
+.fl:first-of-type{margin-top:0}
+.inp{width:100%;border:1px solid var(--bd);border-radius:8px;background:var(--card2);padding:9px 12px;font-size:13px;color:var(--t2);font-family:'Noto Sans SC',sans-serif;outline:none;transition:border .2s}
+select.inp{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M0 0l6 8 6-8z' fill='%23b0a898'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;-webkit-appearance:none}
+.inp:focus{border-color:var(--acc)}
+.ptabs{display:flex;gap:5px;margin-bottom:4px}
+.ptab{flex:1;padding:7px 4px;border:1px solid var(--bd);border-radius:7px;background:transparent;font-size:12px;color:var(--t3);cursor:pointer;transition:all .15s;font-family:'Noto Sans SC',sans-serif;text-align:center}
+.ptab.on{background:var(--acc);color:#fff;border-color:var(--acc)}
+.note{font-size:11px;color:var(--t4);margin-top:6px;line-height:1.6;text-align:center}
+.note a{color:var(--acc);text-decoration:none}
+.btn{width:100%;min-height:42px;border-radius:8px;border:none;font-size:14px;font-weight:600;font-family:'Noto Sans SC',sans-serif;cursor:pointer;transition:opacity .2s;margin-top:14px}
+.btn-a{background:var(--acc);color:#fff}.btn-a:hover{opacity:.9}
+.btn-g{background:transparent;color:var(--t3);border:1px solid var(--bd)}.btn-g:hover{background:var(--card2)}
+
+/* SCREENS */
+.sc{flex:1;display:flex;flex-direction:column}
+.sc.hide{display:none!important}
+
+/* HOME */
+.hs{flex:1;overflow-y:auto;padding:28px 18px 8px}
+.lw{text-align:center;margin-bottom:22px}
+.le{font-size:42px;display:block;margin-bottom:10px}
+.lt{font-family:'Noto Serif SC',serif;font-size:23px;font-weight:700;color:var(--t1);letter-spacing:.1em;margin-bottom:4px}
+.ls{font-size:12px;color:var(--t3)}
+.dv{display:flex;align-items:center;gap:10px;margin:14px 0}
+.dl{flex:1;height:1px;background:var(--bdl)}
+.dd{font-size:9px;color:var(--t4)}
+.sl{font-size:10px;color:var(--t4);letter-spacing:.2em;font-weight:600;margin-bottom:10px}
+.cg{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.cg .fl{margin-top:0}
+.sg{display:flex;flex-direction:column;gap:7px;margin-bottom:12px}
+.sr{display:flex;align-items:center;gap:8px}
+.sn{font-size:12px;color:var(--t3);width:26px;flex-shrink:0}
+.sb{flex:1;height:5px;background:var(--bdl);border-radius:3px;overflow:hidden}
+.sf{height:100%;border-radius:3px;transition:width .3s}
+.sv{font-size:12px;color:var(--t3);width:16px;text-align:right;font-variant-numeric:tabular-nums}
+.sbs{display:flex;gap:3px}
+.sbs button{width:22px;height:22px;border:1px solid var(--bd);background:transparent;border-radius:5px;cursor:pointer;font-size:13px;color:var(--t3);display:flex;align-items:center;justify-content:center;line-height:1;transition:all .15s}
+.sbs button:hover{background:var(--card2);color:var(--t1)}
+.pi{text-align:right;font-size:11px;color:var(--t4);margin-bottom:5px}
+.pi strong{color:var(--acc)}
+.hb{padding:12px 18px 28px;background:linear-gradient(to top,var(--bg) 80%,transparent)}
+.sb2{width:100%;min-height:48px;border-radius:var(--r);border:none;background:var(--acc);color:#fff;font-size:15px;font-weight:700;font-family:'Noto Serif SC',serif;letter-spacing:.15em;cursor:pointer;transition:all .2s;box-shadow:0 4px 16px rgba(74,111,165,.3)}
+.sb2:hover{opacity:.92}.sb2:disabled{opacity:.4;cursor:not-allowed}
+.fl2{display:flex;justify-content:center;gap:10px;margin-top:8px}
+.fl2 button{background:none;border:none;color:var(--t4);cursor:pointer;font-size:11px;font-family:'Noto Sans SC',sans-serif;padding:0;transition:color .2s}
+.fl2 button:hover{color:var(--t3)}
+
+/* GAME */
+.gh{display:flex;align-items:center;padding:12px 18px 10px;border-bottom:1px solid var(--bdl);background:var(--bg);position:sticky;top:0;z-index:10;gap:8px}
+.gb{background:none;border:none;color:var(--t3);cursor:pointer;font-size:18px;padding:4px;line-height:1;transition:color .2s}
+.gb:hover{color:var(--t1)}
+.gt{font-family:'Noto Serif SC',serif;font-size:14px;font-weight:700;color:var(--t1);flex:1}
+.ab{font-size:11px;color:var(--t3);background:var(--card);border:1px solid var(--bd);border-radius:20px;padding:3px 10px}
+.sp{background:var(--card);border:1px solid var(--bd);border-radius:var(--r);padding:13px 15px;margin:12px 18px 0;box-shadow:var(--sh)}
+.spt{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px}
+.sptt{font-size:12px;font-weight:600;color:var(--t1)}
+.spc{font-size:11px;color:var(--t4)}
+.spg{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+.sps{display:flex;align-items:center;gap:5px}
+.spn{font-size:11px;color:var(--t3);width:22px;flex-shrink:0}
+.spb{flex:1;height:4px;background:var(--bdl);border-radius:2px;overflow:hidden}
+.spbf{height:100%;border-radius:2px;transition:width .4s}
+.spv{font-size:11px;color:var(--t2);font-variant-numeric:tabular-nums;min-width:14px}
+.spd{font-size:10px;padding:1px 4px;border-radius:3px;font-weight:600}
+.spd.p{background:#dcfce7;color:#16a34a}.spd.n{background:#fee2e2;color:#dc2626}
+.fw{display:flex;flex-wrap:wrap;gap:4px;margin-top:7px}
+.fp{font-size:10px;background:#eff6ff;color:#3b82f6;border-radius:20px;padding:2px 8px}
+.ew{flex:1;overflow-y:auto;padding:12px 18px 6px;display:flex;flex-direction:column;gap:10px}
+.ec{background:var(--card);border:1px solid var(--bd);border-radius:var(--r);overflow:hidden;box-shadow:var(--sh);animation:fu .3s ease both}
+.el2{display:flex;gap:5px;padding:10px 14px 0;flex-wrap:wrap}
+.elb{font-size:10px;background:var(--card2);color:var(--t3);border-radius:20px;padding:2px 8px}
+.et{font-family:'Noto Serif SC',serif;font-size:16px;font-weight:700;color:var(--t1);padding:7px 14px 3px}
+.ed{font-size:13px;line-height:1.85;color:var(--t2);padding:0 14px 11px}
+.rb{margin:0 14px 11px;padding:11px 13px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;font-size:13px;line-height:1.8;color:#1e40af;animation:fu .3s ease both}
+.rbt{font-size:11px;font-weight:600;color:#3b82f6;margin-bottom:4px;letter-spacing:.05em}
+.chs{padding:0 14px 13px;display:flex;flex-direction:column;gap:6px}
+.cb{width:100%;text-align:left;padding:10px 13px;border:1px solid var(--bd);border-radius:8px;background:var(--card2);cursor:pointer;transition:all .18s;font-family:'Noto Sans SC',sans-serif}
+.cb:hover:not(:disabled){background:#eff6ff;border-color:#93c5fd}
+.cb:disabled{opacity:.5;cursor:not-allowed}
+.cb.sel{background:#eff6ff;border-color:var(--acc)}
+.cm{font-size:13px;font-weight:600;color:var(--t1)}
+.cd{font-size:12px;color:var(--t3);margin-top:2px;line-height:1.5}
+.lc{background:var(--card);border:1px solid var(--bd);border-radius:var(--r);padding:22px;display:flex;align-items:center;gap:10px;box-shadow:var(--sh)}
+.ds{display:flex;gap:5px}
+.d{width:7px;height:7px;border-radius:50%;background:var(--t4);animation:pu 1.2s ease-in-out infinite}
+.d:nth-child(2){animation-delay:.15s}.d:nth-child(3){animation-delay:.3s}
+@keyframes pu{0%,80%,100%{opacity:.3;transform:scale(.85)}40%{opacity:1;transform:scale(1)}}
+.lt2{font-size:13px;color:var(--t3)}
+.hw{margin:0 18px 12px}
+.ht{width:100%;text-align:left;background:none;border:none;padding:8px 0;font-size:12px;color:var(--t3);cursor:pointer;font-family:'Noto Sans SC',sans-serif;display:flex;align-items:center;gap:6px}
+.hl{display:flex;flex-direction:column;gap:7px;margin-top:5px}
+.hi{background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:9px 11px;font-size:12px}
+.hm{display:flex;justify-content:space-between;color:var(--t4);margin-bottom:3px}
+.hch{color:var(--acc);font-weight:600;margin-bottom:2px}
+.hre{color:var(--t2);line-height:1.6}
+.gbottom{padding:10px 18px 26px;background:linear-gradient(to top,var(--bg) 80%,transparent);display:flex;gap:8px}
+.nb{flex:1;min-height:46px;border-radius:var(--r);border:none;background:var(--acc);color:#fff;font-size:14px;font-weight:600;font-family:'Noto Sans SC',sans-serif;cursor:pointer;transition:all .2s;box-shadow:0 4px 14px rgba(74,111,165,.25)}
+.nb:hover{opacity:.9}.nb:disabled{opacity:.4;cursor:not-allowed}
+.rb2{min-height:46px;padding:0 13px;border-radius:var(--r);border:1px solid var(--bd);background:var(--card);color:var(--t3);font-size:12px;font-family:'Noto Sans SC',sans-serif;cursor:pointer;white-space:nowrap}
+.rb2:hover{background:var(--card2)}
+@keyframes fu{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+::-webkit-scrollbar{width:3px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--bdl);border-radius:2px}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- OVERLAY: API 配置 -->
+<div class="overlay" id="apiOv">
+  <div class="modal">
+    <div class="modal-bar"></div>
+    <div class="modal-body">
+      <div class="modal-title">✦ 配置 AI 笔墨 ✦</div>
+      <div class="modal-sub">选择 AI 提供商，填入 Key<br>Key 仅存本地，不上传任何服务器</div>
+
+      <div class="fl">AI 提供商</div>
+      <div class="ptabs">
+        <button class="ptab on" onclick="setP('openai')" id="tab-openai">OpenAI 协议</button>
+        <button class="ptab" onclick="setP('gemini')" id="tab-gemini">Gemini</button>
+        <button class="ptab" onclick="setP('anthropic')" id="tab-ant">Anthropic</button>
+      </div>
+
+      <div id="cfg-openai">
+        <div class="fl">Base URL（兼容豆包/Deepseek/Qwen等）</div>
+        <input class="inp" id="oi-url" type="text" placeholder="https://api.openai.com/v1">
+        <div class="fl">API Key</div>
+        <input class="inp" id="oi-key" type="password" placeholder="sk-...">
+        <div class="fl">模型</div>
+        <input class="inp" id="oi-model" type="text" placeholder="gpt-4o-mini">
+        <div class="note">豆包：ark.cn-beijing.volces.com/api/v3 · doubao-1-5-pro-32k<br>Deepseek：api.deepseek.com/v1 · deepseek-chat<br>Qwen：dashscope.aliyuncs.com/compatible-mode/v1 · qwen-turbo</div>
+      </div>
+      <div id="cfg-gemini" style="display:none">
+        <div class="fl">API Key</div>
+        <input class="inp" id="gem-key" type="password" placeholder="AIza...">
+        <div class="fl">模型</div>
+        <input class="inp" id="gem-model" type="text" placeholder="gemini-2.0-flash">
+        <div class="note">前往 <a href="https://aistudio.google.com" target="_blank">aistudio.google.com</a> 免费获取</div>
+      </div>
+      <div id="cfg-ant" style="display:none">
+        <div class="fl">API Key</div>
+        <input class="inp" id="ant-key" type="password" placeholder="sk-ant-...">
+        <div class="fl">模型</div>
+        <input class="inp" id="ant-model" type="text" placeholder="claude-haiku-4-5-20251001">
+        <div class="note">前往 <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a> 获取<br>推荐 Haiku 节省费用，Sonnet 质量更好</div>
+      </div>
+
+      <button class="btn btn-a" onclick="saveCfg()">确认，开始人生</button>
+    </div>
+  </div>
+</div>
+
+<!-- HOME -->
+<div class="sc" id="homeSc">
+  <div class="hs">
+    <div class="lw">
+      <span class="le">📔</span>
+      <div class="lt">AI 人生重开手帐</div>
+      <div class="ls">每一局都像读了一篇短篇小说</div>
+    </div>
+    <div class="dv"><div class="dl"></div><div class="dd">✦</div><div class="dl"></div></div>
+
+    <div class="sl">角 色 设 定</div>
+    <div class="cg">
+      <div><div class="fl">性别</div><select class="inp" id="c-g"><option>女</option><option>男</option><option>随机</option></select></div>
+      <div><div class="fl">发型</div><select class="inp" id="c-h"><option>黑色长发</option><option>短发</option><option>卷发</option><option>马尾</option><option>随机</option></select></div>
+      <div><div class="fl">脸型</div><select class="inp" id="c-f"><option>鹅蛋脸</option><option>圆脸</option><option>方脸</option><option>长脸</option></select></div>
+      <div><div class="fl">肤色</div><select class="inp" id="c-s"><option>自然偏白</option><option>白皙</option><option>偏黄</option><option>小麦色</option></select></div>
+      <div><div class="fl">体型</div><select class="inp" id="c-b"><option>中等</option><option>瘦</option><option>微胖</option><option>健壮</option></select></div>
+      <div><div class="fl">起始年龄</div><select class="inp" id="c-a"><option value="16">16岁</option><option value="18" selected>18岁</option><option value="20">20岁</option><option value="25">25岁</option></select></div>
+    </div>
+
+    <div class="dv"><div class="dl"></div><div class="dd">✦</div><div class="dl"></div></div>
+    <div class="sl">属 性 分 配</div>
+    <div class="pi">剩余点数：<strong id="ptsL">20</strong> / 20</div>
+    <div class="sg" id="sliders"></div>
+    <button class="btn btn-g" style="min-height:36px;font-size:12px;margin-top:0" onclick="randStats()">🎲 随机分配属性</button>
+  </div>
+  <div class="hb">
+    <button class="sb2" onclick="startGame()">开 始 这 一 世</button>
+    <div class="fl2">
+      <button onclick="openCfg()">⚙ AI 配置</button>
+      <span style="color:var(--bdl)">·</span>
+      <button onclick="alert('暂无跨局历史，每局自动存进游戏历史面板')">📔 旧页</button>
+    </div>
+  </div>
+</div>
+
+<!-- GAME -->
+<div class="sc hide" id="gameSc">
+  <div class="gh">
+    <button class="gb" onclick="goHome()">←</button>
+    <div class="gt" id="gTitle">人生手帐</div>
+    <div class="ab" id="ageBdg">18 岁</div>
+  </div>
+  <div class="sp" id="statsPnl"></div>
+  <div class="ew" id="evWrap"></div>
+  <div class="hw" id="histWrap" style="display:none">
+    <button class="ht" onclick="togHist()"><span id="htIcon">▶</span> 历史记录</button>
+    <div class="hl hide" id="histList"></div>
+  </div>
+  <div class="gbottom">
+    <button class="nb" id="nextBtn" disabled>生成下一事件</button>
+    <button class="rb2" onclick="goHome()">换一世</button>
+  </div>
+</div>
+
+</div>
+
+<script>
+// ── CONFIG ──
+let cfg = (() => { try { return JSON.parse(localStorage.getItem('lr2_cfg')||'null') } catch{} return null })() || {p:'openai',url:'https://api.openai.com/v1',key:'',model:'gpt-4o-mini'};
+let curP = cfg.p || 'openai';
+
+function setP(p) {
+  curP = p;
+  ['openai','gemini','ant'].forEach(x => {
+    document.getElementById('tab-'+x).classList.toggle('on', x===p);
+    document.getElementById('cfg-'+x).style.display = x===p?'':'none';
+  });
+}
+
+function openCfg() {
+  // restore values
+  if (cfg.p==='openai') { setP('openai'); document.getElementById('oi-url').value=cfg.url||'https://api.openai.com/v1'; document.getElementById('oi-key').value=cfg.key||''; document.getElementById('oi-model').value=cfg.model||'gpt-4o-mini'; }
+  else if (cfg.p==='gemini') { setP('gemini'); document.getElementById('gem-key').value=cfg.key||''; document.getElementById('gem-model').value=cfg.model||'gemini-2.0-flash'; }
+  else { setP('ant'); document.getElementById('ant-key').value=cfg.key||''; document.getElementById('ant-model').value=cfg.model||'claude-haiku-4-5-20251001'; }
+  document.getElementById('apiOv').classList.remove('hide');
+}
+
+function saveCfg() {
+  let nc = {p: curP};
+  if (curP==='openai') { nc.url=(document.getElementById('oi-url').value.trim()||'https://api.openai.com/v1').replace(/\/$/,''); nc.key=document.getElementById('oi-key').value.trim(); nc.model=document.getElementById('oi-model').value.trim()||'gpt-4o-mini'; }
+  else if (curP==='gemini') { nc.key=document.getElementById('gem-key').value.trim(); nc.model=document.getElementById('gem-model').value.trim()||'gemini-2.0-flash'; nc.url=''; }
+  else { nc.key=document.getElementById('ant-key').value.trim(); nc.model=document.getElementById('ant-model').value.trim()||'claude-haiku-4-5-20251001'; nc.url=''; }
+  if (!nc.key) { alert('请填入 API Key'); return; }
+  cfg = nc; localStorage.setItem('lr2_cfg', JSON.stringify(cfg));
+  document.getElementById('apiOv').classList.add('hide');
+}
+
+// ── STATS ──
+const SDEFS = [{k:'智力',c:'#3b82f6'},{k:'体质',c:'#ef4444'},{k:'魅力',c:'#ec4899'},{k:'运气',c:'#f59e0b'}];
+let stats = {智力:5,体质:5,魅力:5,运气:5};
+const MAXP = 20;
+
+function used() { return stats.智力+stats.体质+stats.魅力+stats.运气; }
+
+function renderSliders() {
+  const rem = MAXP - used();
+  const el = document.getElementById('ptsL');
+  el.textContent = rem; el.style.color = rem<0?'#dc2626':'var(--acc)';
+  const w = document.getElementById('sliders'); w.innerHTML='';
+  SDEFS.forEach(d => {
+    const v = stats[d.k];
+    const r = document.createElement('div'); r.className='sr';
+    r.innerHTML=`<div class="sn">${d.k}</div><div class="sb"><div class="sf" style="width:${v*10}%;background:${d.c}"></div></div><div class="sv">${v}</div><div class="sbs"><button onclick="adj('${d.k}',-1)">−</button><button onclick="adj('${d.k}',+1)">＋</button></div>`;
+    w.appendChild(r);
+  });
+}
+
+function adj(k,d) {
+  const n=stats[k]+d;
+  if (n<1||n>10) return;
+  if (d>0&&used()>=MAXP) return;
+  stats[k]=n; renderSliders();
+}
+
+function randStats() {
+  stats={智力:1,体质:1,魅力:1,运气:1};
+  let r=MAXP-4;
+  while(r>0){const k=SDEFS[Math.floor(Math.random()*4)].k;if(stats[k]<10){stats[k]++;r--;}}
+  renderSliders();
+}
+
+// ── AI CALL ──
+async function callAI(prompt) {
+  if (cfg.p==='openai') {
+    const res = await fetch(`${cfg.url}/chat/completions`,{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${cfg.key}`},body:JSON.stringify({model:cfg.model,max_tokens:1200,temperature:0.85,messages:[{role:'system',content:'你是专业的人生模拟器事件生成器。严格按照用户要求的JSON格式输出，不加任何其他文字。'},{role:'user',content:prompt}]})});
+    if(!res.ok){const e=await res.json();throw new Error(e.error?.message||res.status);}
+    return (await res.json()).choices[0].message.content;
+  } else if (cfg.p==='gemini') {
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${cfg.model}:generateContent?key=${cfg.key}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({systemInstruction:{parts:[{text:'你是专业的人生模拟器事件生成器。严格按照用户要求的JSON格式输出，不加任何其他文字。'}]},contents:[{role:'user',parts:[{text:prompt}]}],generationConfig:{maxOutputTokens:1200,temperature:0.85}})});
+    if(!res.ok){const e=await res.json();throw new Error(e.error?.message||res.status);}
+    return (await res.json()).candidates[0].content.parts[0].text;
+  } else {
+    const res = await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':cfg.key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:cfg.model,max_tokens:1200,system:'你是专业的人生模拟器事件生成器。严格按照用户要求的JSON格式输出，不加任何其他文字。',messages:[{role:'user',content:prompt}]})});
+    if(!res.ok){const e=await res.json();throw new Error(e.error?.message||res.status);}
+    return (await res.json()).content[0].text;
+  }
+}
+
+function pj(raw) {
+  const m = raw.match(/```json\s*([\s\S]*?)\s*```/)||raw.match(/(\{[\s\S]*\})/);
+  return JSON.parse(m?m[1]:raw.trim());
+}
+
+// ── SESSION ──
+let sess = null, isProc = false, showH = false, curEv = null, curLbls = null, selCh = null;
+
+function startGame() {
+  if (!cfg.key) { openCfg(); return; }
+  const g=document.getElementById('c-g').value, h=document.getElementById('c-h').value,
+    f=document.getElementById('c-f').value, s=document.getElementById('c-s').value,
+    b=document.getElementById('c-b').value, a=parseInt(document.getElementById('c-a').value);
+  sess={profile:{g,h,f,s,b},stats:{...stats,金钱:100},age:a,round:0,flags:['初始状态'],history:[]};
+  showH=false;
+  document.getElementById('homeSc').classList.add('hide');
+  document.getElementById('gameSc').classList.remove('hide');
+  document.getElementById('evWrap').innerHTML='';
+  document.getElementById('histWrap').style.display='none';
+  document.getElementById('histList').classList.add('hide');
+  updHdr(); renderSP(); genEvent();
+}
+
+function goHome() {
+  document.getElementById('gameSc').classList.add('hide');
+  document.getElementById('homeSc').classList.remove('hide');
+}
+
+function updHdr() {
+  document.getElementById('ageBdg').textContent=`${sess.age} 岁`;
+  const gLabel = sess.profile.g==='随机'?'主角':sess.profile.g;
+  document.getElementById('gTitle').textContent=`${gLabel}的人生手帐`;
+}
+
+// ── STATS PANEL ──
+function renderSP(delta) {
+  const s=sess.stats;
+  const cs={智力:'#3b82f6',体质:'#ef4444',魅力:'#ec4899',运气:'#f59e0b',金钱:'#10b981'};
+  document.getElementById('statsPnl').innerHTML=`
+    <div class="spt"><div class="sptt">属性面板 · 第${sess.round}回合</div><div class="spc">${sess.profile.g==='随机'?'主角':sess.profile.g} · ${sess.profile.h}</div></div>
+    <div class="spg">
+      ${SDEFS.map(d=>`<div class="sps"><div class="spn">${d.k}</div><div class="spb"><div class="spbf" style="width:${Math.min(s[d.k]*10,100)}%;background:${d.c}"></div></div><div class="spv">${s[d.k]}</div>${delta&&delta[d.k]?`<span class="spd ${delta[d.k]>0?'p':'n'}">${delta[d.k]>0?'+':''}${delta[d.k]}</span>`:''}</div>`).join('')}
+      <div class="sps"><div class="spn">金钱</div><div class="spb"><div class="spbf" style="width:${Math.min(s.金钱/10,100)}%;background:#10b981"></div></div><div class="spv" style="min-width:34px">¥${s.金钱}</div>${delta&&delta.金钱?`<span class="spd ${delta.金钱>0?'p':'n'}">${delta.金钱>0?'+':''}${delta.金钱}</span>`:''}</div>
+    </div>
+    ${sess.flags.length?`<div class="fw">${sess.flags.slice(-7).map(f=>`<span class="fp">${f}</span>`).join('')}</div>`:''}`;
+}
+
+// ── PROMPTS ──
+function evPrompt(nextLbls) {
+  const s=sess.stats, stg=sess.age<12?'童年':sess.age<18?'青春期':sess.age<25?'青年':sess.age<40?'成年':sess.age<60?'中年':'老年';
+  const rec=sess.history.slice(-3).map(h=>`${h.age}岁·「${h.evtTitle}」·选「${h.choice}」·${h.result.slice(0,30)}…`).join('\n');
+  const gv=sess.profile.g==='随机'?['男','女'][Math.random()>.5?0:1]:sess.profile.g;
+  return `请为以下角色生成一个原创人生事件卡片。
+
+角色：${gv}性 ${sess.age}岁（${stg}）${sess.profile.h} ${sess.profile.f} ${sess.profile.s}肤 ${sess.profile.b}体型
+属性：智力${s.智力}/10 体质${s.体质}/10 魅力${s.魅力}/10 运气${s.运气}/10 金钱¥${s.金钱}
+状态标签：${sess.flags.slice(-6).join('、')}
+${rec?`近期经历：\n${rec}`:''}${nextLbls?.length?`\n推荐方向：${nextLbls.join('、')}`:''}
+
+要求：
+1. 事件要与年龄段和属性强相关（高智力遇学术机遇，高魅力遇社交事件，低金钱遇经济压力等）
+2. 事件描述2~3句，真实细腻，有具体细节，像私人日记
+3. 3个选择，各有实质差异，每个选择配1句描述
+4. 不要与近期历史重复
+
+只返回JSON，不加任何其他文字：
+{
+  "title": "事件标题（6字以内）",
+  "labels": ["标签1","标签2"],
+  "description": "事件描述...",
+  "choices": [
+    {"id":"A","text":"选择文字","description":"后果预示"},
+    {"id":"B","text":"选择文字","description":"后果预示"},
+    {"id":"C","text":"选择文字","description":"后果预示"}
+  ]
+}`;
+}
+
+function resPrompt(ev, ch) {
+  const s=sess.stats;
+  return `请生成玩家选择的结果。
+
+事件：${ev.title} — ${ev.description}
+玩家选择：${ch.text}（${ch.description}）
+角色属性：智力${s.智力} 体质${s.体质} 魅力${s.魅力} 运气${s.运气} 金钱¥${s.金钱}
+当前年龄：${sess.age}岁
+状态标签：${sess.flags.slice(-5).join('、')}
+
+要求：
+1. result_text：结果叙述2~3句，生动有余味，与选择和属性相关
+2. delta_stats：属性变化（各项-3~+3，金钱可±100~±500）
+3. flags_add：新增0~2个状态标签
+4. next_labels：推荐下一事件方向2~3个标签
+5. is_end：年龄超85且回合数超20则可为true，否则false
+6. ending_summary：仅is_end为true时填，一句人生感悟
+
+只返回JSON：
+{
+  "result_text": "...",
+  "delta_stats": {"智力":0,"体质":0,"魅力":0,"运气":0,"金钱":0},
+  "flags_add": [],
+  "next_labels": [],
+  "is_end": false,
+  "ending_summary": ""
+}`;
+}
+
+// ── EVENT FLOW ──
+async function genEvent(nextLbls) {
+  const nb=document.getElementById('nextBtn');
+  nb.disabled=true; nb.textContent='生成下一事件'; nb.onclick=null;
+  const w=document.getElementById('evWrap');
+  const ld=mkLoad('命运的笔正在书写……'); w.appendChild(ld); sb();
+  try {
+    const raw=await callAI(evPrompt(nextLbls));
+    const parsed=pj(raw);
+    ld.remove(); curEv=parsed; selCh=null;
+    renderEv(parsed);
+  } catch(e) { ld.remove(); renderErr(`生成失败：${e.message}`); }
+  sb();
+}
+
+function renderEv(ev) {
+  const w=document.getElementById('evWrap');
+  const card=document.createElement('div'); card.className='ec'; card.id='curCard';
+  card.innerHTML=`
+    <div class="el2">${(ev.labels||[]).map(l=>`<span class="elb">${l}</span>`).join('')}</div>
+    <div class="et">${ev.title}</div>
+    <div class="ed">${ev.description}</div>
+    <div class="chs" id="chsWrap">
+      ${(ev.choices||[]).map(c=>`<button class="cb" id="ch-${c.id}" onclick="selChoice('${c.id}')"><div class="cm">${c.text}</div>${c.description?`<div class="cd">${c.description}</div>`:''}</button>`).join('')}
+    </div>`;
+  w.appendChild(card);
+}
+
+function selChoice(id) {
+  if (isProc) return;
+  selCh=curEv.choices.find(c=>c.id===id);
+  document.querySelectorAll('.cb').forEach(b=>b.classList.toggle('sel',b.id===`ch-${id}`));
+  const nb=document.getElementById('nextBtn');
+  nb.textContent='确认选择 →'; nb.disabled=false; nb.onclick=confirmCh;
+}
+
+async function confirmCh() {
+  if (!selCh||isProc) return;
+  isProc=true;
+  const nb=document.getElementById('nextBtn'); nb.disabled=true;
+  document.querySelectorAll('.cb').forEach(b=>b.disabled=true);
+  const w=document.getElementById('evWrap');
+  const ld=mkLoad('命运正在推演……'); w.appendChild(ld); sb();
+  try {
+    const raw=await callAI(resPrompt(curEv,selCh));
+    const parsed=pj(raw); ld.remove();
+    // apply
+    const dl=parsed.delta_stats||{};
+    for (const k of Object.keys(dl)) {
+      if (sess.stats[k]!==undefined) sess.stats[k]=Math.max(k==='金钱'?-99999:0,sess.stats[k]+(dl[k]||0));
+    }
+    (parsed.flags_add||[]).forEach(f=>{if(!sess.flags.includes(f))sess.flags.push(f);});
+    sess.age++; sess.round++;
+    curLbls=parsed.next_labels;
+    // save history
+    const he={round:sess.round,age:sess.age-1,evtTitle:curEv.title,choice:selCh.text,result:parsed.result_text};
+    sess.history.push(he);
+    // render result
+    const card=document.getElementById('curCard');
+    if(card){const rb=document.createElement('div');rb.className='rb';rb.innerHTML=`<div class="rbt">↳ 结果</div>${parsed.result_text}`;const chs=card.querySelector('.chs');chs.after(rb);}
+    updHdr(); renderSP(dl);
+    document.getElementById('histWrap').style.display='';
+    if(showH) renderHistList();
+    if(parsed.is_end){
+      renderEnding(parsed.ending_summary);
+      nb.textContent='✦ 人生已终'; nb.disabled=true; nb.onclick=null;
+    } else {
+      nb.textContent='继续人生 →'; nb.disabled=false; nb.onclick=nextEv;
+    }
+  } catch(e) {
+    ld.remove(); renderErr(`处理失败：${e.message}`);
+    const nb=document.getElementById('nextBtn'); nb.disabled=false; nb.textContent='重试'; nb.onclick=confirmCh;
+  }
+  isProc=false; sb();
+}
+
+function nextEv() {
+  const old=document.getElementById('curCard'); if(old) old.removeAttribute('id');
+  genEvent(curLbls);
+}
+
+function renderEnding(summary) {
+  const w=document.getElementById('evWrap');
+  const el=document.createElement('div'); el.className='ec';
+  el.style.cssText='text-align:center;padding:24px 18px;background:linear-gradient(135deg,#fdf8f0,#f5f0e8);border-color:#ddd5c0';
+  el.innerHTML=`<div style="font-size:28px;margin-bottom:12px">📜</div><div style="font-family:'Noto Serif SC',serif;font-size:17px;font-weight:700;color:var(--t1);margin-bottom:10px">人生落幕</div><div style="font-size:13px;line-height:1.9;color:var(--t3);margin-bottom:16px">${summary||'这一世，已然写完。'}</div><div style="display:inline-block;border:1.5px solid #8b6914;color:#8b6914;font-size:12px;padding:4px 14px;letter-spacing:.3em;border-radius:3px;opacity:.75;transform:rotate(-2deg);font-family:'Noto Serif SC',serif">终 · 章</div>`;
+  w.appendChild(el);
+}
+
+function renderErr(msg) {
+  const w=document.getElementById('evWrap');
+  const el=document.createElement('div'); el.className='lc';
+  el.innerHTML=`<div class="ds"><div class="d" style="background:#ef4444"></div></div><div class="lt2" style="color:#dc2626">${msg}</div>`;
+  w.appendChild(el);
+}
+
+function mkLoad(txt) {
+  const el=document.createElement('div'); el.className='lc';
+  el.innerHTML=`<div class="ds"><div class="d"></div><div class="d"></div><div class="d"></div></div><div class="lt2">${txt}</div>`;
+  return el;
+}
+
+function sb() { setTimeout(()=>{ const w=document.getElementById('evWrap'); if(w) w.scrollTo({top:w.scrollHeight,behavior:'smooth'}); },80); }
+
+function togHist() {
+  showH=!showH;
+  document.getElementById('htIcon').textContent=showH?'▼':'▶';
+  document.getElementById('histList').classList.toggle('hide',!showH);
+  if(showH) renderHistList();
+}
+
+function renderHistList() {
+  document.getElementById('histList').innerHTML=sess.history.slice().reverse().map(h=>`<div class="hi"><div class="hm"><span>第${h.round}回合 · ${h.age}岁</span></div><div class="hch">↳ ${h.choice}</div><div class="hre">${h.result}</div></div>`).join('');
+}
+
+// ── BOOT ──
+window.onload=()=>{
+  if(!cfg.key) openCfg();
+  else { setP(cfg.p||'openai'); }
+  renderSliders();
+};
+</script>
+</body>
+</html>
